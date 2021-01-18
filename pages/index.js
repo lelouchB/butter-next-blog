@@ -1,65 +1,65 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
-
-export default function Home() {
+import Head from "next/head";
+import Butter from "buttercms";
+import styled from "styled-components";
+import PostContainer from "../components/PostContainer";
+ 
+const butter = Butter(process.env.BUTTER_CMS_API_TOKEN);
+ 
+const Container = styled.main`
+  h1 {
+    font-size: 3rem;
+    font-family: Consolas;
+    margin-bottom: 1em;
+    color: #383428;
+    margin: 0;
+  }
+  h2 {
+    font-family: Cambria;
+    font-weight: 600;
+    color: #808080;
+  }
+`;
+const Post = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+ 
+ 
+export default function Home({ posts }) {
   return (
-    <div className={styles.container}>
+    <Container>
       <Head>
-        <title>Create Next App</title>
+        <title>NextJS Blog with Butter CMS</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
-  )
+      <h1>NextJS Blog with ButterCMS</h1>
+      <h2>Latest Posts</h2>
+      <Post>
+        {posts.data.map((post) => (
+          <PostContainer
+            key={post.slug}
+            title={post.title}
+            featured_image={post.featured_image}
+            alt={post.featured_image_alt}
+            slug={post.slug}
+            summary={post.summary}
+            date={post.published}
+          />
+        ))}
+      </Post>
+    </Container>
+  );
 }
+ 
+export async function getStaticProps() {
+  const response = await butter.post.list({ page: 1, page_size: 10 });
+  const posts = await response.data;
+ 
+  return {
+    props: {
+      posts,
+    },
+  };
+}
+ 
